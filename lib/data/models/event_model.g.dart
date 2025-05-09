@@ -28,13 +28,18 @@ class EventModelAdapter extends TypeAdapter<EventModel> {
       imageUrl: fields[8] as String?,
       createdBy: fields[9] as String,
       createdAt: fields[10] as DateTime,
+      categories: (fields[11] as List).cast<EventCategoryModel>(),
+      maxAttendees: fields[12] as int?,
+      price: fields[13] as double?,
+      isPrivate: fields[14] as bool,
+      contactInfo: fields[15] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, EventModel obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -56,7 +61,17 @@ class EventModelAdapter extends TypeAdapter<EventModel> {
       ..writeByte(9)
       ..write(obj.createdBy)
       ..writeByte(10)
-      ..write(obj.createdAt);
+      ..write(obj.createdAt)
+      ..writeByte(11)
+      ..write(obj.categories)
+      ..writeByte(12)
+      ..write(obj.maxAttendees)
+      ..writeByte(13)
+      ..write(obj.price)
+      ..writeByte(14)
+      ..write(obj.isPrivate)
+      ..writeByte(15)
+      ..write(obj.contactInfo);
   }
 
   @override
@@ -78,14 +93,21 @@ EventModel _$EventModelFromJson(Map<String, dynamic> json) => EventModel(
       id: json['id'] as String,
       title: json['title'] as String,
       description: json['description'] as String,
-      startTime: DateTime.parse(json['startTime'] as String),
-      endTime: DateTime.parse(json['endTime'] as String),
+      startTime: DateTime.parse(json['start_time'] as String),
+      endTime: DateTime.parse(json['end_time'] as String),
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
       address: json['address'] as String,
-      imageUrl: json['imageUrl'] as String?,
-      createdBy: json['createdBy'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      imageUrl: json['image_url'] as String?,
+      createdBy: json['created_by'] as String,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      categories: (json['categories'] as List<dynamic>)
+          .map((e) => EventCategoryModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      maxAttendees: json['max_attendees'] as int?,
+      price: (json['price'] as num?)?.toDouble(),
+      isPrivate: json['is_private'] as bool? ?? false,
+      contactInfo: json['contact_info'] as String?,
     );
 
 Map<String, dynamic> _$EventModelToJson(EventModel instance) =>
@@ -93,12 +115,17 @@ Map<String, dynamic> _$EventModelToJson(EventModel instance) =>
       'id': instance.id,
       'title': instance.title,
       'description': instance.description,
-      'startTime': instance.startTime.toIso8601String(),
-      'endTime': instance.endTime.toIso8601String(),
+      'start_time': instance.startTime.toIso8601String(),
+      'end_time': instance.endTime.toIso8601String(),
       'latitude': instance.latitude,
       'longitude': instance.longitude,
       'address': instance.address,
-      'imageUrl': instance.imageUrl,
-      'createdBy': instance.createdBy,
-      'createdAt': instance.createdAt.toIso8601String(),
+      'image_url': instance.imageUrl,
+      'created_by': instance.createdBy,
+      'created_at': instance.createdAt.toIso8601String(),
+      'categories': instance.categories.map((e) => e.toJson()).toList(),
+      'max_attendees': instance.maxAttendees,
+      'price': instance.price,
+      'is_private': instance.isPrivate,
+      'contact_info': instance.contactInfo,
     };

@@ -1,14 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/event.dart';
+import 'shimmer_loading.dart';
+import 'event_edit_sheet.dart';
 
 class EventCard extends StatelessWidget {
   final Event event;
+  final bool isLoading;
 
-  const EventCard({super.key, required this.event});
+  const EventCard({
+    super.key,
+    required this.event,
+    this.isLoading = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const EventCardShimmer();
+    }
+
     final dateFormat = DateFormat('MMM d, y');
     final timeFormat = DateFormat('h:mm a');
 
@@ -16,7 +27,18 @@ class EventCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to event details
+          Navigator.pushNamed(
+            context,
+            '/event-details',
+            arguments: {'eventId': event.id},
+          );
+        },
+        onLongPress: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            builder: (context) => EventEditSheet(event: event),
+          );
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -31,12 +53,46 @@ class EventCard extends StatelessWidget {
                     height: 200,
                     width: double.infinity,
                     fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return const ShimmerLoading(
+                        height: 200,
+                        borderRadius: 8,
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 200,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.image_not_supported,
+                          size: 48,
+                          color: Colors.grey,
+                        ),
+                      );
+                    },
                   ),
                 ),
               const SizedBox(height: 16),
-              Text(
-                event.title,
-                style: Theme.of(context).textTheme.titleLarge,
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      event.title,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  if (event.isPrivate)
+                    const Icon(
+                      Icons.lock,
+                      size: 20,
+                      color: Colors.grey,
+                    ),
+                ],
               ),
               const SizedBox(height: 8),
               Text(
@@ -44,6 +100,17 @@ class EventCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                children: event.categories.map((category) {
+                  return Chip(
+                    label: Text(category.name),
+                    backgroundColor: Color(int.parse(category.color)),
+                    labelStyle: const TextStyle(color: Colors.white),
+                  );
+                }).toList(),
               ),
               const SizedBox(height: 16),
               Row(
@@ -71,6 +138,32 @@ class EventCard extends StatelessWidget {
                   ),
                 ],
               ),
+              if (event.price != null) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.attach_money, size: 16),
+                    const SizedBox(width: 8),
+                    Text(
+                      '\$${event.price!.toStringAsFixed(2)}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ],
+              if (event.maxAttendees != null) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.people, size: 16),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Max ${event.maxAttendees} attendees',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),

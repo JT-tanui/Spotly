@@ -3,7 +3,7 @@ import '../entities/event.dart';
 import '../../core/errors/failures.dart';
 
 abstract class EventRepository {
-  Future<Either<Failure, List<Event>>> getUserEvents();
+  Future<Either<Failure, List<Event>>> getUserEvents(String userId);
 
   Future<Either<Failure, Event>> createEvent(Event event);
 

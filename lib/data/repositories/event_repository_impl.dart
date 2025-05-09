@@ -12,10 +12,10 @@ class EventRepositoryImpl implements EventRepository {
   EventRepositoryImpl({required this.localDataSource});
 
   @override
-  Future<Either<Failure, List<Event>>> getUserEvents() async {
+  Future<Either<Failure, List<Event>>> getUserEvents(String userId) async {
     try {
       final events = await localDataSource.getUserEvents();
-      return Right(events);
+      return Right(events.where((event) => event.createdBy == userId).toList());
     } on CacheException {
       return Left(CacheFailure());
     }
@@ -24,8 +24,9 @@ class EventRepositoryImpl implements EventRepository {
   @override
   Future<Either<Failure, Event>> createEvent(Event event) async {
     try {
-      final eventModel = await localDataSource.createEvent(event as EventModel);
-      return Right(eventModel);
+      final eventModel = EventModel.fromEntity(event);
+      final createdEvent = await localDataSource.createEvent(eventModel);
+      return Right(createdEvent);
     } on CacheException {
       return Left(CacheFailure());
     }
@@ -44,8 +45,9 @@ class EventRepositoryImpl implements EventRepository {
   @override
   Future<Either<Failure, Event>> updateEvent(Event event) async {
     try {
-      final eventModel = await localDataSource.updateEvent(event as EventModel);
-      return Right(eventModel);
+      final eventModel = EventModel.fromEntity(event);
+      final updatedEvent = await localDataSource.updateEvent(eventModel);
+      return Right(updatedEvent);
     } on CacheException {
       return Left(CacheFailure());
     }

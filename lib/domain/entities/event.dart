@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'event_category.dart';
 
 class Event extends Equatable {
   final String id;
@@ -12,6 +13,11 @@ class Event extends Equatable {
   final String? imageUrl;
   final String createdBy;
   final DateTime createdAt;
+  final List<EventCategory> categories;
+  final int? maxAttendees;
+  final double? price;
+  final bool isPrivate;
+  final String? contactInfo;
 
   const Event({
     required this.id,
@@ -25,6 +31,11 @@ class Event extends Equatable {
     this.imageUrl,
     required this.createdBy,
     required this.createdAt,
+    required this.categories,
+    this.maxAttendees,
+    this.price,
+    this.isPrivate = false,
+    this.contactInfo,
   });
 
   @override
@@ -40,5 +51,10 @@ class Event extends Equatable {
         imageUrl,
         createdBy,
         createdAt,
+        categories,
+        maxAttendees,
+        price,
+        isPrivate,
+        contactInfo,
       ];
 }

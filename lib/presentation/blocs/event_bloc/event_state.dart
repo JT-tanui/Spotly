@@ -1,29 +1,30 @@
-part of 'event_bloc.dart';
+import 'package:equatable/equatable.dart';
+import '../../../domain/entities/event.dart';
 
 abstract class EventState extends Equatable {
   const EventState();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
-class EventsInitial extends EventState {}
+class EventInitial extends EventState {}
 
-class EventsLoading extends EventState {}
+class EventLoading extends EventState {}
 
-class EventsLoaded extends EventState {
+class EventLoaded extends EventState {
   final List<Event> events;
 
-  const EventsLoaded({required this.events});
+  const EventLoaded(this.events);
 
   @override
   List<Object> get props => [events];
 }
 
-class EventsError extends EventState {
+class EventError extends EventState {
   final String message;
 
-  const EventsError({required this.message});
+  const EventError(this.message);
 
   @override
   List<Object> get props => [message];

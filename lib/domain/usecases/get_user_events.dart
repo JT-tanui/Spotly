@@ -4,13 +4,13 @@ import '../../core/usecases/usecase.dart';
 import '../entities/event.dart';
 import '../repositories/event_repository.dart';
 
-class GetUserEvents implements UseCase<List<Event>, NoParams> {
+class GetUserEvents implements UseCase<List<Event>, String> {
   final EventRepository repository;
 
   GetUserEvents(this.repository);
 
   @override
-  Future<Either<Failure, List<Event>>> call(NoParams params) async {
-    return await repository.getUserEvents();
+  Future<Either<Failure, List<Event>>> call(String userId) async {
+    return await repository.getUserEvents(userId);
   }
 }
