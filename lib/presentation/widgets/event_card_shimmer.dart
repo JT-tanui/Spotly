@@ -7,97 +7,62 @@ class EventCardShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.only(bottom: 16),
+      clipBehavior: Clip.antiAlias,
+      elevation: 2,
       child: Shimmer.fromColors(
         baseColor: Colors.grey[300]!,
         highlightColor: Colors.grey[100]!,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 200,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                height: 24,
-                width: 200,
-                color: Colors.white,
-              ),
-              const SizedBox(height: 8),
-              Container(
-                height: 16,
-                width: double.infinity,
-                color: Colors.white,
-              ),
-              const SizedBox(height: 8),
-              Container(
-                height: 16,
-                width: 150,
-                color: Colors.white,
-              ),
-              const SizedBox(height: 16),
-              Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Shimmer for image
+            Container(
+              height: 150,
+              width: double.infinity,
+              color: Colors.white,
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Shimmer for title
                   Container(
                     height: 24,
-                    width: 80,
+                    width: double.infinity,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(height: 16),
+
+                  // Shimmer for date
                   Container(
-                    height: 24,
-                    width: 80,
+                    height: 16,
+                    width: 120,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Shimmer for location
+                  Container(
+                    height: 16,
+                    width: 180,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Container(
-                    height: 16,
-                    width: 16,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    height: 16,
-                    width: 150,
-                    color: Colors.white,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Container(
-                    height: 16,
-                    width: 16,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    height: 16,
-                    width: 200,
-                    color: Colors.white,
-                  ),
-                ],
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

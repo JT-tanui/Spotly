@@ -29,11 +29,11 @@ class PlacesRepositoryImpl implements PlacesRepository {
           radius: radius,
         );
         return Right(places);
-      } on ServerException {
-        return Left(ServerFailure());
+      } on ServerException catch (e) {
+        return Left(ServerFailure(message: e.message));
       }
     } else {
-      return Left(ServerFailure());
+      return Left(ServerFailure(message: 'No internet connection'));
     }
   }
 
@@ -43,11 +43,11 @@ class PlacesRepositoryImpl implements PlacesRepository {
       try {
         final place = await remoteDataSource.getPlaceDetails(placeId);
         return Right(place);
-      } on ServerException {
-        return Left(ServerFailure());
+      } on ServerException catch (e) {
+        return Left(ServerFailure(message: e.message));
       }
     } else {
-      return Left(ServerFailure());
+      return Left(ServerFailure(message: 'No internet connection'));
     }
   }
 }

@@ -1,85 +1,105 @@
-import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 import '../../domain/entities/event.dart';
-import '../../domain/entities/event_category.dart';
-import 'event_category_model.dart';
 
 part 'event_model.g.dart';
 
-@HiveType(typeId: 0)
+@HiveType(typeId: 1)
 class EventModel extends Event {
   const EventModel({
-    required super.id,
-    required super.title,
-    required super.description,
-    required super.startTime,
-    required super.endTime,
-    required super.latitude,
-    required super.longitude,
-    required super.address,
-    super.imageUrl,
-    required super.createdBy,
-    required super.createdAt,
-    required super.categories,
-    super.maxAttendees,
-    super.price,
-    super.isPrivate = false,
-    super.contactInfo,
-  });
+    @HiveField(0) required String id,
+    @HiveField(1) required String title,
+    @HiveField(2) required String description,
+    @HiveField(3) required String location,
+    @HiveField(4) required DateTime startDate,
+    @HiveField(5) required DateTime endDate,
+    @HiveField(6) required String imageUrl,
+    @HiveField(7) required List<String> categories,
+    @HiveField(8) required double price,
+    @HiveField(9) required int maxAttendees,
+    @HiveField(10) required int attendees,
+    @HiveField(11) required double latitude,
+    @HiveField(12) required double longitude,
+    @HiveField(13) required String organizer,
+    @HiveField(15) required double rating,
+    @HiveField(16) required int reviewCount,
+    @HiveField(17) required List<String> tags,
+    @HiveField(18) String? address,
+    @HiveField(19) String? createdBy,
+    @HiveField(20) DateTime? createdAt,
+    @HiveField(21) DateTime? updatedAt,
+    @HiveField(23) bool isPrivate = false,
+    @HiveField(24) String? contactInfo,
+    @HiveField(25) Map<String, dynamic>? metadata,
+    @HiveField(26) String? category,
+    @HiveField(27) bool isVirtual = false,
+    @HiveField(28) String? url,
+    @HiveField(29) dynamic venue,
+  }) : super(
+          id: id,
+          title: title,
+          description: description,
+          location: location,
+          startDate: startDate,
+          endDate: endDate,
+          imageUrl: imageUrl,
+          categories: categories,
+          price: price,
+          maxAttendees: maxAttendees,
+          attendees: attendees,
+          latitude: latitude,
+          longitude: longitude,
+          organizer: organizer,
+          rating: rating,
+          reviewCount: reviewCount,
+          tags: tags,
+          address: address,
+          createdBy: createdBy,
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+          isPrivate: isPrivate,
+          contactInfo: contactInfo,
+          metadata: metadata,
+          category: category,
+          isVirtual: isVirtual,
+          url: url,
+          venue: venue,
+        );
 
   factory EventModel.fromJson(Map<String, dynamic> json) {
-    final categoriesList = (json['categories'] as List<dynamic>?) ?? [];
-    final categories = categoriesList.map((category) {
-      if (category is Map<String, dynamic>) {
-        return EventCategoryModel.fromJson(category);
-      }
-      throw FormatException('Invalid category format in JSON');
-    }).toList();
-
     return EventModel(
       id: json['id'] as String,
       title: json['title'] as String,
       description: json['description'] as String,
-      startTime: DateTime.parse(json['start_time'] as String),
-      endTime: DateTime.parse(json['end_time'] as String),
+      location: json['location'] as String,
+      startDate: DateTime.parse(json['start_time'] as String),
+      endDate: DateTime.parse(json['end_time'] as String),
+      imageUrl: json['image_url'] as String,
+      categories: (json['categories'] as List<dynamic>).cast<String>(),
+      price: (json['price'] as num).toDouble(),
+      maxAttendees: json['capacity'] as int,
+      attendees: json['current_attendees'] as int,
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
-      address: json['address'] as String,
-      imageUrl: json['image_url'] as String?,
-      createdBy: json['created_by'] as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      categories: categories,
-      maxAttendees: json['max_attendees'] as int?,
-      price: json['price'] != null ? (json['price'] as num).toDouble() : null,
+      organizer: json['organizer_id'] as String,
+      rating: (json['rating'] as num).toDouble(),
+      reviewCount: json['review_count'] as int,
+      tags: (json['tags'] as List<dynamic>).cast<String>(),
+      address: json['address'] as String?,
+      createdBy: json['created_by'] as String?,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : null,
       isPrivate: json['is_private'] as bool? ?? false,
       contactInfo: json['contact_info'] as String?,
+      metadata: json['metadata'] as Map<String, dynamic>?,
+      category: json['category'] as String?,
+      isVirtual: json['is_virtual'] as bool? ?? false,
+      url: json['url'] as String?,
+      venue: json['venue'],
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'title': title,
-      'description': description,
-      'start_time': startTime.toIso8601String(),
-      'end_time': endTime.toIso8601String(),
-      'latitude': latitude,
-      'longitude': longitude,
-      'address': address,
-      'image_url': imageUrl,
-      'created_by': createdBy,
-      'created_at': createdAt.toIso8601String(),
-      'categories': categories.map((category) {
-        if (category is EventCategoryModel) {
-          return category.toJson();
-        }
-        return EventCategoryModel.fromEntity(category).toJson();
-      }).toList(),
-      'max_attendees': maxAttendees,
-      'price': price,
-      'is_private': isPrivate,
-      'contact_info': contactInfo,
-    };
   }
 
   factory EventModel.fromEntity(Event event) {
@@ -87,24 +107,65 @@ class EventModel extends Event {
       id: event.id,
       title: event.title,
       description: event.description,
-      startTime: event.startTime,
-      endTime: event.endTime,
+      location: event.location,
+      startDate: event.startDate,
+      endDate: event.endDate,
+      imageUrl: event.imageUrl,
+      categories: event.categories,
+      price: event.price,
+      maxAttendees: event.maxAttendees ?? 0,
+      attendees: event.attendees,
       latitude: event.latitude,
       longitude: event.longitude,
+      organizer: event.organizer ?? '',
+      rating: event.rating,
+      reviewCount: event.reviewCount,
+      tags: event.tags,
       address: event.address,
-      imageUrl: event.imageUrl,
       createdBy: event.createdBy,
       createdAt: event.createdAt,
-      categories: event.categories.map((category) {
-        if (category is EventCategoryModel) {
-          return category;
-        }
-        return EventCategoryModel.fromEntity(category);
-      }).toList(),
-      maxAttendees: event.maxAttendees,
-      price: event.price,
+      updatedAt: event.updatedAt,
       isPrivate: event.isPrivate,
       contactInfo: event.contactInfo,
+      metadata: event.metadata,
+      category: event.category,
+      isVirtual: event.isVirtual ?? false,
+      url: event.url,
+      venue: event.venue,
     );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'location': location,
+      'start_time': startDate.toIso8601String(),
+      'end_time': endDate.toIso8601String(),
+      'image_url': imageUrl,
+      'categories': categories,
+      'price': price,
+      'capacity': maxAttendees,
+      'current_attendees': attendees,
+      'latitude': latitude,
+      'longitude': longitude,
+      'organizer_id': organizer,
+      'rating': rating,
+      'review_count': reviewCount,
+      'tags': tags,
+      'address': address,
+      'created_by': createdBy,
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+      'is_private': isPrivate,
+      'contact_info': contactInfo,
+      'metadata': metadata,
+      'category': category,
+      'is_virtual': isVirtual,
+      'url': url,
+      'venue': venue,
+    };
   }
 }

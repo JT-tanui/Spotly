@@ -1,0 +1,35 @@
+# ======= FIREBASE CONFIGURATION =======
+# Android Firebase Configuration
+FIREBASE_API_KEY=AIzaSyDLDMNUBQwAXy7VUqAYjeXLsu1OxEyA_oE
+FIREBASE_APP_ID=1:1051998072292:android:267a764774da394bbd6bf1
+FIREBASE_AUTH_DOMAIN=spotly-6790d.firebaseapp.com
+FIREBASE_MESSAGING_SENDER_ID=1051998072292
+FIREBASE_PROJECT_ID=spotly-6790d
+FIREBASE_STORAGE_BUCKET=spotly-6790d.firebasestorage.app
+
+# iOS Firebase Configuration
+FIREBASE_IOS_API_KEY=AIzaSyDFbVDnfz2Dl8di6FuFE06eMgWeHd4JRp0
+FIREBASE_IOS_APP_ID=1:1051998072292:ios:d429b567b37797bbbd6bf1
+FIREBASE_IOS_BUNDLE_ID=com.jml.spotly
+
+# Web Firebase Configuration
+FIREBASE_WEB_API_KEY=AIzaSyD_gqGZ6qw2r1Al-yBlv3CsV6EWI0qVUaU
+FIREBASE_WEB_AUTH_DOMAIN=spotly-6790d.firebaseapp.com
+FIREBASE_WEB_APP_ID=1:1051998072292:web:8d495c965647ba32bd6bf1
+FIREBASE_WEB_MEASUREMENT_ID=G-SLNGX5DJPS
+
+# ======= GOOGLE MAPS CONFIGURATION =======
+# Google Maps API key
+GOOGLE_MAPS_API_KEY=AIzaSyDrIJpsXDh3jy7RGDN_S78yFksPMthtdw8
+
+# ======= OTHER SETTINGS =======
+# Add any other environment variables your app might need below
+
+# API Configuration
+API_BASE_URL=http://localhost:3000
+API_VERSION=v1
+
+# App Configuration
+APP_NAME=Spotly
+APP_ENV=development
+DEBUG_MODE=true

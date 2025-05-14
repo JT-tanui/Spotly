@@ -2,25 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ShimmerLoading extends StatelessWidget {
-  final double width;
   final double height;
+  final double? width;
   final double borderRadius;
+  final Color? baseColor;
+  final Color? highlightColor;
 
   const ShimmerLoading({
-    super.key,
-    this.width = double.infinity,
-    this.height = 16,
-    this.borderRadius = 8,
-  });
+    Key? key,
+    required this.height,
+    this.width,
+    this.borderRadius = 0,
+    this.baseColor,
+    this.highlightColor,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
+      baseColor: baseColor ?? theme.colorScheme.surfaceVariant,
+      highlightColor: highlightColor ?? theme.colorScheme.surface,
       child: Container(
-        width: width,
         height: height,
+        width: width,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(borderRadius),

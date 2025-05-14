@@ -43,3 +43,17 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+.env
+.env copy
+.enviroment
+.enviroment copy
+.env.local
+.env.local copy
+
+/inux
+/macos
+/web
+/windows
+/Trash
+
+/android_backup

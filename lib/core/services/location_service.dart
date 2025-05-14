@@ -1,5 +1,6 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:geocoding/geocoding.dart';
 import '../errors/exceptions.dart';
 
 class LocationService {
@@ -15,7 +16,7 @@ class LocationService {
     // Check if location services are enabled
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      throw LocationException();
+      throw LocationException(message: 'Location services are disabled');
     }
 
     // Check location permission
@@ -23,12 +24,13 @@ class LocationService {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        throw PermissionException();
+        throw PermissionException(message: 'Location permission denied');
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      throw PermissionException();
+      throw PermissionException(
+          message: 'Location permissions permanently denied');
     }
 
     // Get current position
@@ -37,7 +39,8 @@ class LocationService {
         desiredAccuracy: LocationAccuracy.high,
       );
     } catch (e) {
-      throw LocationException();
+      throw LocationException(
+          message: 'Failed to get current location: ${e.toString()}');
     }
   }
 
@@ -62,5 +65,35 @@ class LocationService {
       endLatitude,
       endLongitude,
     );
+  }
+
+  Future<String> getAddressFromCoordinates(
+      double latitude, double longitude) async {
+    try {
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+        // Format the address to make it user-friendly
+        if (place.locality != null && place.locality!.isNotEmpty) {
+          if (place.subLocality != null && place.subLocality!.isNotEmpty) {
+            return '📍 ${place.locality}, ${place.subLocality}';
+          }
+          return '📍 ${place.locality}';
+        }
+        // Fallback to a more complete address if locality is not available
+        return [
+          place.street,
+          place.subLocality,
+          place.locality,
+          place.administrativeArea,
+          place.country,
+        ].where((element) => element != null && element.isNotEmpty).join(', ');
+      }
+      return '';
+    } catch (e) {
+      throw LocationException(
+          message: 'Failed to get address: ${e.toString()}');
+    }
   }
 }

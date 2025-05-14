@@ -1,112 +1,123 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
 import '../../../domain/entities/event.dart';
-import '../../../domain/usecases/create_event.dart';
-import '../../../domain/usecases/get_user_events.dart';
-import '../../../domain/usecases/update_event.dart';
-import '../../../domain/usecases/delete_event.dart';
+import '../../../domain/repositories/event_repository.dart';
 import 'event_event.dart';
 import 'event_state.dart';
 
 class EventBloc extends Bloc<EventEvent, EventState> {
-  final GetUserEvents getUserEvents;
-  final CreateEvent createEvent;
-  final UpdateEvent updateEvent;
-  final DeleteEvent deleteEvent;
+  final EventRepository _eventRepository;
 
-  EventBloc({
-    required this.getUserEvents,
-    required this.createEvent,
-    required this.updateEvent,
-    required this.deleteEvent,
-  }) : super(EventInitial()) {
-    on<GetUserEventsEvent>(_onGetUserEvents);
-    on<CreateEventEvent>(_onCreateEvent);
-    on<UpdateEventEvent>(_onUpdateEvent);
-    on<DeleteEventEvent>(_onDeleteEvent);
+  EventBloc(this._eventRepository) : super(const EventInitial()) {
+    on<LoadEvents>(_onLoadEvents);
+    on<LoadMyEvents>(_onLoadMyEvents);
+    on<LoadEventById>(_onLoadEventById);
+    on<CreateEvent>(_onCreateEvent);
+    on<UpdateEvent>(_onUpdateEvent);
+    on<DeleteEvent>(_onDeleteEvent);
+    on<JoinEvent>(_onJoinEvent);
+    on<LeaveEvent>(_onLeaveEvent);
+    on<GetNearbyEventsEvent>(_onGetNearbyEvents);
   }
 
-  Future<void> _onGetUserEvents(
-    GetUserEventsEvent event,
-    Emitter<EventState> emit,
-  ) async {
-    emit(EventLoading());
-    final result = await getUserEvents(event.userId);
+  Future<void> _onLoadEvents(LoadEvents event, Emitter<EventState> emit) async {
+    emit(const EventLoading());
+    final result = await _eventRepository.getEvents();
     result.fold(
       (failure) => emit(EventError(failure.toString())),
       (events) => emit(EventLoaded(events)),
     );
   }
 
-  Future<void> _onCreateEvent(
-    CreateEventEvent event,
-    Emitter<EventState> emit,
-  ) async {
-    emit(EventLoading());
-    final newEvent = Event(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: event.title,
-      description: event.description,
-      startTime: event.startTime,
-      endTime: event.endTime,
-      latitude: 0, // TODO: Get from location service
-      longitude: 0, // TODO: Get from location service
-      address: event.address,
-      createdBy: event.createdBy,
-      createdAt: DateTime.now(),
-      categories: event.categories,
-      maxAttendees: event.maxAttendees,
-      price: event.price,
-      isPrivate: event.isPrivate,
-    );
-
-    final result = await createEvent(newEvent);
+  Future<void> _onLoadMyEvents(
+      LoadMyEvents event, Emitter<EventState> emit) async {
+    emit(const EventLoading());
+    final result = await _eventRepository.getMyEvents();
     result.fold(
       (failure) => emit(EventError(failure.toString())),
-      (_) async {
-        final eventsResult = await getUserEvents(event.createdBy);
-        eventsResult.fold(
-          (failure) => emit(EventError(failure.toString())),
-          (events) => emit(EventLoaded(events)),
-        );
-      },
+      (events) => emit(EventLoaded(events)),
+    );
+  }
+
+  Future<void> _onLoadEventById(
+      LoadEventById event, Emitter<EventState> emit) async {
+    emit(const EventLoading());
+    final result = await _eventRepository.getEventById(event.id);
+    result.fold(
+      (failure) => emit(EventError(failure.toString())),
+      (event) => emit(EventDetailLoaded(event)),
+    );
+  }
+
+  Future<void> _onCreateEvent(
+      CreateEvent event, Emitter<EventState> emit) async {
+    emit(const EventLoading());
+    final result = await _eventRepository.createEvent(
+      title: event.title,
+      description: event.description,
+      location: event.location,
+      startDate: event.startTime,
+      endDate: event.endTime,
+      imageUrl: event.imageUrl,
+      categories: event.categories,
+      price: event.price,
+      maxAttendees: event.capacity,
+    );
+    result.fold(
+      (failure) => emit(EventError(failure.toString())),
+      (event) => emit(EventCreated(event)),
     );
   }
 
   Future<void> _onUpdateEvent(
-    UpdateEventEvent event,
-    Emitter<EventState> emit,
-  ) async {
-    emit(EventLoading());
-    final result = await updateEvent(event.event);
+      UpdateEvent event, Emitter<EventState> emit) async {
+    emit(const EventLoading());
+    final result = await _eventRepository.updateEvent(event.event);
     result.fold(
       (failure) => emit(EventError(failure.toString())),
-      (_) async {
-        final eventsResult = await getUserEvents(event.event.createdBy);
-        eventsResult.fold(
-          (failure) => emit(EventError(failure.toString())),
-          (events) => emit(EventLoaded(events)),
-        );
-      },
+      (event) => emit(EventUpdated(event)),
     );
   }
 
   Future<void> _onDeleteEvent(
-    DeleteEventEvent event,
-    Emitter<EventState> emit,
-  ) async {
-    emit(EventLoading());
-    final result = await deleteEvent(event.eventId);
+      DeleteEvent event, Emitter<EventState> emit) async {
+    emit(const EventLoading());
+    final result = await _eventRepository.deleteEvent(event.eventId);
     result.fold(
       (failure) => emit(EventError(failure.toString())),
-      (_) async {
-        // TODO: Get user ID from current state
-        final eventsResult = await getUserEvents('current_user_id');
-        eventsResult.fold(
-          (failure) => emit(EventError(failure.toString())),
-          (events) => emit(EventLoaded(events)),
-        );
-      },
+      (_) => emit(EventDeleted(event.eventId)),
+    );
+  }
+
+  Future<void> _onJoinEvent(JoinEvent event, Emitter<EventState> emit) async {
+    emit(const EventLoading());
+    final result = await _eventRepository.joinEvent(event.eventId);
+    result.fold(
+      (failure) => emit(EventError(failure.toString())),
+      (_) => emit(EventJoined(event.eventId)),
+    );
+  }
+
+  Future<void> _onLeaveEvent(LeaveEvent event, Emitter<EventState> emit) async {
+    emit(const EventLoading());
+    final result = await _eventRepository.leaveEvent(event.eventId);
+    result.fold(
+      (failure) => emit(EventError(failure.toString())),
+      (_) => emit(EventLeft(event.eventId)),
+    );
+  }
+
+  Future<void> _onGetNearbyEvents(
+      GetNearbyEventsEvent event, Emitter<EventState> emit) async {
+    emit(const EventLoading());
+    final result = await _eventRepository.getNearbyEvents(
+      latitude: event.latitude,
+      longitude: event.longitude,
+      radius: event.radius,
+    );
+    result.fold(
+      (failure) => emit(EventError(failure.toString())),
+      (events) => emit(EventLoaded(events)),
     );
   }
 }
